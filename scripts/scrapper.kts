@@ -1,8 +1,9 @@
 #!/usr/bin/env kscript
 
-@file:DependsOnMaven("it.skrape:skrapeit-core:1.0.0-alpha6")
+@file:DependsOn("it.skrape:skrapeit-core:1.0.0-alpha6")
 
 @file:Include("WeeklyItem.kt")
+@file:Include("AndroidWeeklyIssue.kt")
 
 @file:CompilerOpts("-jvm-target 1.8")
 
@@ -38,26 +39,25 @@ val androidWeeklyIssue = skrape {
                                 .text.removeSurrounding(prefix = "(", suffix = ")")
                             val description = element.findFirst("p").text
                             val imgLink = element.findAll("img").firstOrNull()?.attribute("src")
-                            WeeklyItem.Article(headline, link, mainUrl, description, imgLink)
+                            when (currentHeader.toUpperCase()) {
+                                "ARTICLES & TUTORIALS" ->
+                                    WeeklyItem.Article(headline, link, mainUrl, description, imgLink)
+                                "SPONSORED" -> WeeklyItem.Sponsored(headline, link, mainUrl, description, imgLink)
+                                "LIBRARIES & CODE" ->
+                                    WeeklyItem.Library(headline, link, mainUrl, description, imgLink)
+                                "VIDEOS & PODCASTS" ->
+                                    WeeklyItem.Video(headline, link, mainUrl, description, imgLink)
+                                else -> WeeklyItem.Unknown(headline, link, mainUrl, description, imgLink)
+                            }
                         }
                     }
                 }
             }
 
-            AndroidWeeklyIssue(
-                issueNumber,
-                date,
-                weeklyItems
-            )
+            AndroidWeeklyIssue(issueNumber, date, weeklyItems)
         }
     }
 }
 
-println(androidWeeklyIssue)
-
-data class AndroidWeeklyIssue(
-    val number: Int,
-    val date: String,
-    val items: List<WeeklyItem>
-)
+androidWeeklyIssue.items.forEach(::println)
 

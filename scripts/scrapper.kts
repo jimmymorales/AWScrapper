@@ -1,7 +1,9 @@
 #!/usr/bin/env kscript
 
+@file:DependsOn("com.google.firebase:firebase-admin:6.12.2")
 @file:DependsOn("it.skrape:skrapeit-core:1.0.0-alpha6")
 
+@file:Include("Firestore.kt")
 @file:Include("WeeklyItem.kt")
 @file:Include("AndroidWeeklyIssue.kt")
 
@@ -13,6 +15,8 @@ import it.skrape.selects.html5.span
 import it.skrape.selects.html5.strong
 import it.skrape.selects.html5.table
 import it.skrape.skrape
+
+configureFirebase()
 
 val androidWeeklyIssue = skrape {
     url = "https://mailchi.mp/androidweekly/android-weekly-256"

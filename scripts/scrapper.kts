@@ -15,8 +15,15 @@ import it.skrape.selects.html5.span
 import it.skrape.selects.html5.strong
 import it.skrape.selects.html5.table
 import it.skrape.skrape
+import kotlin.system.exitProcess
 
-configureFirebase()
+val projectId = System.getenv("FIREBASE_PROJECT_ID")
+if (projectId.isNullOrBlank()) {
+    println("Missing project id (FIREBASE_PROJECT_ID) environment variable")
+    exitProcess(-1)
+}
+
+configureFirebase(projectId)
 
 val androidWeeklyIssue = skrape {
     url = "https://mailchi.mp/androidweekly/android-weekly-256"

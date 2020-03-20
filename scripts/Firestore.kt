@@ -4,10 +4,10 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
 
-fun configureFirebase(): Firestore {
+fun configureFirebase(projectId: String): Firestore {
     val options = FirebaseOptions.Builder()
         .setCredentials(GoogleCredentials.getApplicationDefault())
-        .setProjectId("fir-semi-live-test")
+        .setProjectId(projectId)
         .build()
 
     FirebaseApp.initializeApp(options)

@@ -24,7 +24,7 @@ configureFirebase(projectId)
 val issues = mutableListOf<AndroidWeeklyIssue>()
 
 val notFound = listOf(303, 344, 363, 365)
-for (issueNumber in (256..Int.MAX_VALUE)) {
+for (issueNumber in 256..Int.MAX_VALUE) {
     if (issueNumber in notFound) {
         continue
     }

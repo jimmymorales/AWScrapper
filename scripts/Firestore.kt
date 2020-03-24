@@ -14,3 +14,28 @@ fun configureFirebase(projectId: String): Firestore {
 
     return FirestoreClient.getFirestore()
 }
+
+fun Firestore.storeIssues(issues: List<AndroidWeeklyIssue>) {
+    issues.forEach { issue ->
+        val issueNumber = issue.number.toString()
+        collection("issues").document(issueNumber).set(mapOf("date" to issue.date)).get()
+
+        issue.items.forEach { item ->
+            collection("issues")
+                .document(issueNumber)
+                .collection("items")
+                .document()
+                .set(item.toFirestoreMap())
+                .get()
+        }
+    }
+}
+
+fun WeeklyItem.toFirestoreMap() = mapOf(
+    "headline" to headline,
+    "link" to link,
+    "description" to description,
+    "mainUrl" to mainUrl,
+    "imageLink" to imgLink,
+    "type" to type.name
+)

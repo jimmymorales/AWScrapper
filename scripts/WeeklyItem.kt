@@ -1,100 +1,38 @@
-sealed class WeeklyItem {
-    abstract val headline: String
-    abstract val link: String
-    abstract val description: String
+data class WeeklyItem(
+    val headline: String,
+    val link: String,
+    val description: String,
+    val mainUrl: String,
+    val type: Type,
+    val imgLink: String?
+) {
+    enum class Type {
+        ARTICLE,
+        SPONSORED,
+        LIBRARY,
+        VIDEO,
+        JOB,
+        NEWS,
+        SPECIAL,
+        DESIGN,
+        EVENT,
+        TOOL,
+        BUSINESS,
+        UNKNOWN,
+    }
+}
 
-    data class Article(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Sponsored(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Library(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Video(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Job(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val location: String
-    ) : WeeklyItem()
-
-    data class News(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Special(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Design(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Event(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Tool(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Business(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val mainUrl: String,
-        val imgLink: String?
-    ) : WeeklyItem()
-
-    data class Unknown(
-        override val headline: String,
-        override val link: String,
-        override val description: String,
-        val subHeadline: String,
-        val imgLink: String?
-    ) : WeeklyItem()
+fun String.toWeeklyItemType() = when (this.toUpperCase()) {
+    "ARTICLES & TUTORIALS" -> WeeklyItem.Type.ARTICLE
+    "SPONSORED" -> WeeklyItem.Type.SPONSORED
+    "LIBRARIES & CODE" -> WeeklyItem.Type.LIBRARY
+    "VIDEOS & PODCASTS" -> WeeklyItem.Type.VIDEO
+    "JOBS" -> WeeklyItem.Type.JOB
+    "NEWS" -> WeeklyItem.Type.NEWS
+    "SPECIALS" -> WeeklyItem.Type.SPECIAL
+    "DESIGN" -> WeeklyItem.Type.DESIGN
+    "EVENTS" -> WeeklyItem.Type.EVENT
+    "TOOLS" -> WeeklyItem.Type.TOOL
+    "BUSINESS" -> WeeklyItem.Type.BUSINESS
+    else -> WeeklyItem.Type.UNKNOWN
 }

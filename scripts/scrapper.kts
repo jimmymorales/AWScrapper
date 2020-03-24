@@ -19,7 +19,7 @@ if (projectId.isNullOrBlank()) {
     exitProcess(-1)
 }
 
-configureFirebase(projectId)
+val db = configureFirebase(projectId)
 
 val issues = mutableListOf<AndroidWeeklyIssue>()
 
@@ -30,10 +30,13 @@ for (issueNumber in 256..Int.MAX_VALUE) {
     }
 
     println("Parsing $issueNumber")
-    val androidWeeklyIssue = parse(issueNumber) ?: break
-    println("Parsed issue number = ${androidWeeklyIssue.number} on ${androidWeeklyIssue.date} (Items: ${androidWeeklyIssue.items.count { it is WeeklyItem.Unknown }})")
-    issues += androidWeeklyIssue
+    val issue = parse(issueNumber) ?: break
+    println("Parsed issue #${issue.number} of ${issue.date} (Items: ${issue.items.count()})")
+    issues += issue
 }
 
 println("${issues.count()} Issues Found!")
-println("${issues.map { it.items.count() }.sum()} Items Found!")
+
+db.storeIssues(issues)
+
+println("Issues saved")

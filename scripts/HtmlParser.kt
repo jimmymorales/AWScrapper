@@ -10,10 +10,12 @@ fun parse(issueNumber: Int): AndroidWeeklyIssue? = skrape {
 
     extract {
         htmlDocument {
-            val number = parseIssueNumber() ?: return@htmlDocument null
+            if (parseIssueNumber() == null) {
+                return@htmlDocument null
+            }
 
             AndroidWeeklyIssue(
-                number,
+                issueNumber,
                 date = parseDate(),
                 items = parseWeeklyItems()
             )
@@ -64,35 +66,18 @@ fun Doc.parseWeeklyItems() = table {
 
                 if (isSponsoredItem) {
                     isSponsoredItem = false
-                    return@mapNotNull WeeklyItem.Sponsored(headline, link, description, subHeadline, imgLink)
+                    return@mapNotNull WeeklyItem(
+                        headline,
+                        link,
+                        description,
+                        subHeadline,
+                        WeeklyItem.Type.SPONSORED,
+                        imgLink
+                    )
                 }
 
-                when (currentHeader.toUpperCase()) {
-                    "ARTICLES & TUTORIALS" ->
-                        WeeklyItem.Article(headline, link, description, subHeadline, imgLink)
-                    "SPONSORED" ->
-                        WeeklyItem.Sponsored(headline, link, description, subHeadline, imgLink)
-                    "LIBRARIES & CODE" ->
-                        WeeklyItem.Library(headline, link, description, subHeadline, imgLink)
-                    "VIDEOS & PODCASTS" ->
-                        WeeklyItem.Video(headline, link, description, subHeadline, imgLink)
-                    "JOBS" ->
-                        WeeklyItem.Job(headline, link, description, subHeadline)
-                    "NEWS" ->
-                        WeeklyItem.News(headline, link, description, subHeadline, imgLink)
-                    "SPECIALS" ->
-                        WeeklyItem.Special(headline, link, description, subHeadline, imgLink)
-                    "DESIGN" ->
-                        WeeklyItem.Design(headline, link, description, subHeadline, imgLink)
-                    "EVENTS" ->
-                        WeeklyItem.Event(headline, link, description, subHeadline, imgLink)
-                    "TOOLS" ->
-                        WeeklyItem.Event(headline, link, description, subHeadline, imgLink)
-                    "BUSINESS" ->
-                        WeeklyItem.Event(headline, link, description, subHeadline, imgLink)
-                    else ->
-                        WeeklyItem.Unknown(headline, link, description, subHeadline, imgLink)
-                }
+                val type = currentHeader.toWeeklyItemType()
+                WeeklyItem(headline, link, description, subHeadline, type, imgLink)
             }
         }
     }

@@ -1,5 +1,6 @@
 import it.skrape.core.htmlDocument
 import it.skrape.extract
+import it.skrape.matchers.toBePresent
 import it.skrape.selects.Doc
 import it.skrape.skrape
 import java.net.URL
@@ -25,6 +26,9 @@ fun Doc.parseDate() = findFirst(".issues small").text.also(::println)
 
 fun Doc.parseWeeklyItems() = findAll(".issue>div>*") {
     var currentHeader = ""
+
+    var pendingHeader = ""
+    var pendingLink = ""
     mapNotNull { element ->
         println(element.cssSelector)
         when {
@@ -42,6 +46,16 @@ fun Doc.parseWeeklyItems() = findAll(".issue>div>*") {
                     ?.removeSurrounding("(", ")")
                     ?: link.parseHost()
                 WeeklyItem(header ?: link, description, currentHeader, link, location)
+            }
+            "> a" in element.cssSelector -> {
+                pendingHeader = element.text.trim()
+                pendingLink = element.attribute("href")
+                null
+            }
+            "> span" in element.cssSelector -> {
+                // fix for item in issue 12
+                val location = element.text.removeSurrounding("(", ")")
+                WeeklyItem(pendingHeader, "", currentHeader, pendingLink, location)
             }
             else -> {
                 if (element.text.trim().isEmpty()) {

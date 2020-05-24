@@ -4,3 +4,9 @@ data class AndroidWeeklyIssue(
     val items: List<WeeklyItem>
 )
 
+data class WeeklyItem(
+    val link: String,
+    val description: String,
+    val type: String
+)
+

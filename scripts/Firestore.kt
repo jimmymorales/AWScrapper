@@ -25,12 +25,13 @@ fun Firestore.storeIssues(issues: List<AndroidWeeklyIssue>) {
                 .document(issueNumber)
                 .collection("items")
                 .document()
-                .set(item.toFirestoreMap())
+                //.set(item.toFirestoreMap())
                 .get()
         }
     }
 }
 
+/*
 fun WeeklyItem.toFirestoreMap() = mapOf(
     "headline" to headline,
     "link" to link,
@@ -38,4 +39,5 @@ fun WeeklyItem.toFirestoreMap() = mapOf(
     "mainUrl" to mainUrl,
     "imageLink" to imgLink,
     "type" to type.name
-)
+)*/
+

@@ -5,8 +5,11 @@ data class AndroidWeeklyIssue(
 )
 
 data class WeeklyItem(
-    val link: String,
+    val header: String,
     val description: String,
-    val type: String
+    val type: String,
+    val link: String,
+    val location: String,
+    val img: String? = null
 )
 

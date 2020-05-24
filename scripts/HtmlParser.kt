@@ -26,6 +26,7 @@ fun Doc.parseDate() = findFirst(".issues small").text.also(::println)
 fun Doc.parseWeeklyItems() = findAll(".issue>div>*") {
     var currentHeader = ""
     mapNotNull { element ->
+        println(element.cssSelector)
         when {
             "> h2" in element.cssSelector -> {
                 currentHeader = element.text
@@ -46,12 +47,13 @@ fun Doc.parseWeeklyItems() = findAll(".issue>div>*") {
                 if (element.text.trim().isEmpty()) {
                     return@mapNotNull null
                 }
-                val header = element.findFirst("a:nth-child(2)").text.trim()
+                val header = element.select("a:nth-child(2)").firstOrNull()?.text
+                    ?: element.findFirst("a").text
                 val description = element.findFirst("p").text.trim()
                 val link = element.findFirst("a").attribute("href")
                 val location = element.findFirst("span").text.removeSurrounding("(", ")")
-                val img = element.findFirst("a>img").attribute("src")
-                WeeklyItem(header, description, currentHeader, link, location, img)
+                val img = element.select("a>img").firstOrNull()?.attribute("src")
+                WeeklyItem(header.trim(), description, currentHeader, link, location, img)
             }
         }
     }

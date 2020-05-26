@@ -21,18 +21,13 @@ if (projectId.isNullOrBlank()) {
 
 val db = configureFirebase(projectId)
 
-val issues = mutableListOf<AndroidWeeklyIssue>()
+val issues = mutableListOf<AndroidWeeklyIssueItem>()
 
-val notFound = listOf(303, 344, 363, 365)
-for (issueNumber in 256..Int.MAX_VALUE) {
-    if (issueNumber in notFound) {
-        continue
-    }
-
+for (issueNumber in 291..Int.MAX_VALUE) {
     println("Parsing $issueNumber")
-    val issue = parse(issueNumber) ?: break
-    println("Parsed issue #${issue.number} of ${issue.date} (Items: ${issue.items.count()})")
-    issues += issue
+    val items = parse(issueNumber) ?: break
+    println("Parsed issue #${items[0].issueNumber} of ${items[0].issueDate} (Items: ${items.count()})")
+    issues += items
 }
 
 println("${issues.count()} Issues Found!")

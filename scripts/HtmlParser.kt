@@ -1,12 +1,10 @@
 import it.skrape.core.htmlDocument
 import it.skrape.extract
 import it.skrape.selects.Doc
-import it.skrape.selects.html5.div
-import it.skrape.selects.html5.table
 import it.skrape.skrape
 
-fun parse(issueNumber: Int): AndroidWeeklyIssue? = skrape {
-    url = "https://mailchi.mp/androidweekly/android-weekly-${getIssueNumberPath(issueNumber)}"
+fun parse(issueNumber: Int): List<AndroidWeeklyIssueItem>? = skrape {
+    url = "https://androidweekly.net/issues/issue-$issueNumber"
 
     extract {
         htmlDocument {
@@ -14,71 +12,49 @@ fun parse(issueNumber: Int): AndroidWeeklyIssue? = skrape {
                 return@htmlDocument null
             }
 
-            AndroidWeeklyIssue(
+            parseWeeklyItems(issueNumber, issueDate = parseDate())
+        }
+    }
+}
+
+fun Doc.parseIssueNumber() = findFirstOrNull(cssSelector = ".issues>div>div>h2")?.text
+
+fun Doc.parseDate(): String = findFirst(".issues>div>div>small").text
+
+fun Doc.parseWeeklyItems(issueNumber: Int, issueDate: String) = findAll("div.issue>table") {
+    var currentHeader = ""
+    var isSponsoredItem = false
+    mapNotNull { element ->
+        val header = element.findAll("tbody>tr:nth-child(1)>td>h2").firstOrNull()
+        if (header != null) {
+            currentHeader = header.text.trim()
+            return@mapNotNull null
+        }
+
+        if (element.findAll("h5").any()) {
+            isSponsoredItem = true
+            return@mapNotNull null
+        }
+
+        val headlineElement = element.findFirst("a.article-headline")
+        val headline = headlineElement.text.trim()
+        val link = headlineElement.attribute("href")
+        val mainUrl = element.findFirst("span.main-url").text
+                .removeSurrounding(prefix = "(", suffix = ")")
+                .trim()
+        val description = element.findFirst("p").text.trim()
+        val imgLink = element.findAll("a>img").firstOrNull()?.attribute("src")
+
+        AndroidWeeklyIssueItem(
                 issueNumber,
-                date = parseDate(),
-                items = parseWeeklyItems()
-            )
-        }
-    }
-}
-
-fun Doc.parseIssueNumber() = findFirstOrNull(cssSelector = "strong.issue-number")?.text?.removePrefix("#")?.toInt()
-
-fun getIssueNumberPath(issueNumber: Int): String = when (issueNumber) {
-    404 -> "404-its-just-the-issue-number-not-a-problem"
-    371 -> "370-me929mv31o"
-    else -> issueNumber.toString()
-}
-
-
-fun Doc.parseDate(): String {
-    val date = findFirstOrNull("span.date")?.text
-    return date ?: div {
-        rawCssSelector = "#archivebody > center > table:nth-child(2) > tbody > tr:nth-child(2) > td > div"
-        findFirst { text }
-    }
-}
-
-fun Doc.parseWeeklyItems() = table {
-    rawCssSelector = "#archivebody > center > div > table"
-    findAll {
-        var currentHeader = ""
-        var isSponsoredItem = false
-        mapNotNull { element ->
-            val header = element.findAll("h2").firstOrNull()?.text
-            if (header != null) {
-                currentHeader = header
-                null
-            } else {
-                if (element.findAll("h5").any()) {
-                    isSponsoredItem = true
-                    return@mapNotNull null
-                }
-
-                val headlineElement = element.findAll("a.article-headline").firstOrNull() ?: return@mapNotNull null
-                val headline = headlineElement.text
-                val link = headlineElement.attribute("href")
-                val subHeadline = element.findFirst("span.main-url")
-                    .text.removeSurrounding(prefix = "(", suffix = ")")
-                val description = element.findFirst("p").text
-                val imgLink = element.findAll("img").firstOrNull()?.attribute("src")
-
-                if (isSponsoredItem) {
-                    isSponsoredItem = false
-                    return@mapNotNull WeeklyItem(
-                        headline,
-                        link,
-                        description,
-                        subHeadline,
-                        WeeklyItem.Type.SPONSORED,
-                        imgLink
-                    )
-                }
-
-                val type = currentHeader.toWeeklyItemType()
-                WeeklyItem(headline, link, description, subHeadline, type, imgLink)
-            }
-        }
+                issueDate,
+                headline,
+                link,
+                description,
+                mainUrl,
+                currentHeader,
+                imgLink,
+                isSponsoredItem
+        ).also { isSponsoredItem = false }
     }
 }

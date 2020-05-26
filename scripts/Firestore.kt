@@ -6,36 +6,20 @@ import com.google.firebase.cloud.FirestoreClient
 
 fun configureFirebase(projectId: String): Firestore {
     val options = FirebaseOptions.Builder()
-        .setCredentials(GoogleCredentials.getApplicationDefault())
-        .setProjectId(projectId)
-        .build()
+            .setCredentials(GoogleCredentials.getApplicationDefault())
+            .setProjectId(projectId)
+            .build()
 
     FirebaseApp.initializeApp(options)
 
     return FirestoreClient.getFirestore()
 }
 
-fun Firestore.storeIssues(issues: List<AndroidWeeklyIssue>) {
+fun Firestore.storeIssues(issues: List<AndroidWeeklyIssueItem>) {
     issues.forEach { issue ->
-        val issueNumber = issue.number.toString()
-        collection("issues").document(issueNumber).set(mapOf("date" to issue.date)).get()
-
-        issue.items.forEach { item ->
-            collection("issues")
-                .document(issueNumber)
-                .collection("items")
+        collection("issues")
                 .document()
-                .set(item.toFirestoreMap())
+                .set(issue)
                 .get()
-        }
     }
 }
-
-fun WeeklyItem.toFirestoreMap() = mapOf(
-    "headline" to headline,
-    "link" to link,
-    "description" to description,
-    "mainUrl" to mainUrl,
-    "imageLink" to imgLink,
-    "type" to type.name
-)

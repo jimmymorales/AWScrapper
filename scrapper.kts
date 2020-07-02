@@ -1,25 +1,24 @@
 #!/usr/bin/env kscript
 
-@file:DependsOn("com.google.firebase:firebase-admin:6.12.2")
+@file:DependsOn("com.google.firebase:firebase-admin:6.14.0")
 @file:DependsOn("it.skrape:skrapeit-core:1.0.0-alpha6")
 
-@file:Include("AndroidWeeklyIssue.kt")
-@file:Include("Firestore.kt")
-@file:Include("HtmlParser.kt")
-@file:Include("WeeklyItem.kt")
+@file:Include("helpers/AndroidWeeklyIssue.kt")
+@file:Include("helpers/Firestore.kt")
+@file:Include("helpers/HtmlParser.kt")
 
 @file:CompilerOpts("-jvm-target 1.8")
 
 import kotlin.system.exitProcess
 
-val projectId = System.getenv("FIREBASE_PROJECT_ID")
+val projectId: String? = System.getenv("FIREBASE_PROJECT_ID")
 
 if (projectId.isNullOrBlank()) {
     println("Missing project id (FIREBASE_PROJECT_ID) environment variable")
     exitProcess(-1)
 }
 
-val db = configureFirebase(projectId)
+val db = configureFirebase(projectId!!)
 
 val issues = mutableListOf<AndroidWeeklyIssueItem>()
 
